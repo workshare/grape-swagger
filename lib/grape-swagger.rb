@@ -194,7 +194,7 @@ module Grape
           
                 paramType = if path.include?(":#{param}")
                    'path'
-                elsif entity.documentation.keys.include?(name)
+                elsif (entity.documentation.keys.include?(name) if entity)
                   next
                   'something'
                 else
