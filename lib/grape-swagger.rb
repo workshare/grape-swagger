@@ -151,7 +151,7 @@ module Grape
                     :nickname   => route.route_nickname || (route.route_method + route.route_path.gsub(/[\/:\(\)\.]/,'-')),
                     :httpMethod => route.route_method,
                     :parameters => parse_header_params(route.route_headers) +
-                      parse_params(route.route_params, route.route_path, route.route_method, route.route_entity)
+                      parse_params(route.route_params, route.route_path, route.route_method, route.route_body_entity)
                   }
                   operation.merge!(:type => parse_entity_name(route.route_entity)) if route.route_entity
                   operation.merge!(:responseMessages => http_codes) unless http_codes.empty?
@@ -194,7 +194,7 @@ module Grape
           
                 paramType = if path.include?(":#{param}")
                    'path'
-                elsif (entity.documentation.keys.include?(name) if entity)
+                elsif ((entity.documentation.keys.include?(name) if entity) && (method!="GET"))
                   next
                   'something'
                 else
@@ -221,7 +221,7 @@ module Grape
 
                 result.push parsed_params
               end
-              if entity
+              if entity && (method!="GET")
                 result.push({
                   paramType:    'body',
                   name:         parse_entity_name(entity),

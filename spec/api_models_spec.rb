@@ -75,7 +75,7 @@ describe "API Models" do
           "summary" => "This gets something.",
           "nickname" => "GET-something---format-",
           "httpMethod" => "GET",
-          "parameters" => []
+          "parameters" => [],
         }]
       }],
       "models" => {
