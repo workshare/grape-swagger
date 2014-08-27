@@ -1,0 +1,30 @@
+require 'spec_helper'
+
+describe "Body Params" do
+  
+  before :all do
+    module Entities
+      class Something < Grape::Entity
+        expose :text, :documentation => { :type => "string", :desc => "Entity name" }
+      end
+    end
+
+    class BodyApi < Grape::API
+      format :json
+      desc 'This sets something', {
+        entity: Entities::Something
+      }
+
+      post '/something' do
+      end
+    end
+    add_swagger_documentation
+  end
+end
+
+def app; BodyAPi; end
+
+it "should document specified bodies" do
+  get '/swagger_doc'
+  expect(JSON.parse(last_response.body)).to eq({})
+end
