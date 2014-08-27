@@ -35,9 +35,8 @@ describe "Form Params" do
 
   def app; FormParamApi; end
 
-  it "retrieves the documentation form params" do
+  it "retrieves the documentation query params" do
     get '/swagger_doc/items.json'
-
     JSON.parse(last_response.body).should == {
       "apiVersion" => "0.1",
       "swaggerVersion" => "1.2",
@@ -53,7 +52,7 @@ describe "Form Params" do
               "summary" => "",
               "nickname" => "POST-items---format-",
               "httpMethod" => "POST",
-              "parameters" => [ { "paramType" => "form", "name" => "name", "description" => "name of item", "type" => "String", "dataType" => "String", "required" => true } ]
+              "parameters" => [ { "paramType" => "query", "name" => "name", "description" => "name of item", "type" => "String", "dataType" => "String", "required" => true } ]
             }
           ]
         }, {
@@ -65,7 +64,7 @@ describe "Form Params" do
               "summary" => "",
               "nickname" => "PUT-items--id---format-",
               "httpMethod" => "PUT",
-              "parameters" => [ { "paramType" => "path", "name" => "id", "description" => "id of item", "type" => "Integer", "dataType" => "Integer", "required" => true }, { "paramType" => "form", "name" => "name", "description" => "name of item", "type" => "String", "dataType" => "String", "required" => true } ]
+              "parameters" => [ { "paramType" => "path", "name" => "id", "description" => "id of item", "type" => "Integer", "dataType" => "Integer", "required" => true }, { "paramType" => "query", "name" => "name", "description" => "name of item", "type" => "String", "dataType" => "String", "required" => true } ]
             },
             {
               "produces" => ["application/json"],
@@ -73,7 +72,7 @@ describe "Form Params" do
               "summary" => "",
               "nickname" => "PATCH-items--id---format-",
               "httpMethod" => "PATCH",
-              "parameters" => [ { "paramType" => "path", "name" => "id", "description" => "id of item", "type" => "Integer", "dataType" => "Integer", "required" => true }, { "paramType" => "form", "name" => "name", "description" => "name of item", "type" => "String", "dataType" => "String", "required" => true } ]
+              "parameters" => [ { "paramType" => "path", "name" => "id", "description" => "id of item", "type" => "Integer", "dataType" => "Integer", "required" => true }, { "paramType" => "query", "name" => "name", "description" => "name of item", "type" => "String", "dataType" => "String", "required" => true } ]
             }
           ]
         }
