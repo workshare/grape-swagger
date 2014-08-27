@@ -151,7 +151,7 @@ module Grape
                     :nickname   => route.route_nickname || (route.route_method + route.route_path.gsub(/[\/:\(\)\.]/,'-')),
                     :httpMethod => route.route_method,
                     :parameters => parse_header_params(route.route_headers) +
-                      parse_params(route.route_params, route.route_path, route.route_method, route.route_body_param)
+                      parse_params(route.route_params, route.route_path, route.route_method, route.route_entity)
                   }
                   operation.merge!(:type => parse_entity_name(route.route_entity)) if route.route_entity
                   operation.merge!(:responseMessages => http_codes) unless http_codes.empty?
@@ -184,24 +184,29 @@ module Grape
               description && @@markdown ? Kramdown::Document.new(strip_heredoc(description), :input => 'GFM', :enable_coderay => false).to_html : description
             end
 
-            def parse_params(params, path, method, body_param)
+            def parse_params(params, path, method, entity)
               params ||= []
+              result = []
               params.map do |param, value|
                 value[:type] = 'file' if value.is_a?(Hash) && value[:type] == 'Rack::Multipart::UploadedFile'
+
+                name        = (value.is_a?(Hash) && value[:full_name]) || param
+          
+                paramType = if path.include?(":#{param}")
+                   'path'
+                elsif entity.documentation.keys.include?(name)
+                  next
+                  'something'
+                else
+                  'query'
+                end
 
                 dataType    = value.is_a?(Hash) ? (value[:type] || 'String').to_s : 'String'
                 description = value.is_a?(Hash) ? value[:desc] || value[:description] : ''
                 required    = value.is_a?(Hash) ? !!value[:required] : false
                 defaultValue = value.is_a?(Hash) ? value[:defaultValue] : nil
-                name        = (value.is_a?(Hash) && value[:full_name]) || param
-
-                paramType = if path.include?(":#{param}")
-                   'path'
-                elsif body_param.to_s == name
-                  'body'
-                else
-                  'query'
-                end
+                
+                
                 
                 parsed_params = {
                   paramType:    paramType,
@@ -214,8 +219,19 @@ module Grape
 
                 parsed_params.merge!({defaultValue: defaultValue}) if defaultValue
 
-                parsed_params
+                result.push parsed_params
               end
+              if entity
+                result.push({
+                  paramType:    'body',
+                  name:         parse_entity_name(entity),
+                  description:  "",
+              #     type:         entity,
+                  dataType:     parse_entity_name(entity),
+                  required:     true
+                })
+              end
+              result
             end
 
             def content_types_for(target_class)
@@ -306,6 +322,7 @@ module Grape
                   name:       model.instance_variable_get(:@root) || name,
                   properties: properties
                 }
+
               end
 
               result
