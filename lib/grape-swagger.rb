@@ -151,7 +151,7 @@ module Grape
                     :nickname   => route.route_nickname || (route.route_method + route.route_path.gsub(/[\/:\(\)\.]/,'-')),
                     :httpMethod => route.route_method,
                     :parameters => parse_header_params(route.route_headers) +
-                      parse_params(route.route_params, route.route_path, route.route_method)
+                      parse_params(route.route_params, route.route_path, route.route_method, route.route_body_param)
                   }
                   operation.merge!(:type => parse_entity_name(route.route_entity)) if route.route_entity
                   operation.merge!(:responseMessages => http_codes) unless http_codes.empty?
@@ -184,9 +184,8 @@ module Grape
               description && @@markdown ? Kramdown::Document.new(strip_heredoc(description), :input => 'GFM', :enable_coderay => false).to_html : description
             end
 
-            def parse_params(params, path, method)
+            def parse_params(params, path, method, body_param)
               params ||= []
-
               params.map do |param, value|
                 value[:type] = 'file' if value.is_a?(Hash) && value[:type] == 'Rack::Multipart::UploadedFile'
 
@@ -194,13 +193,16 @@ module Grape
                 description = value.is_a?(Hash) ? value[:desc] || value[:description] : ''
                 required    = value.is_a?(Hash) ? !!value[:required] : false
                 defaultValue = value.is_a?(Hash) ? value[:defaultValue] : nil
-                paramType = if path.include?(":#{param}")
-                   'path'
-                else
-                  %w[ POST PUT PATCH ].include?(method) ? 'form' : 'query'
-                end
                 name        = (value.is_a?(Hash) && value[:full_name]) || param
 
+                paramType = if path.include?(":#{param}")
+                   'path'
+                elsif body_param.to_s == name
+                  'body'
+                else
+                  'query'
+                end
+                
                 parsed_params = {
                   paramType:    paramType,
                   name:         name,
