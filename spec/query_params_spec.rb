@@ -1,9 +1,9 @@
 require 'spec_helper'
 
-describe "Form Params" do
+describe "Query Params" do
 
   before :all do
-    class FormParamApi < Grape::API
+    class QueryParamApi < Grape::API
       format :json
 
       params do
@@ -33,7 +33,7 @@ describe "Form Params" do
     end
   end
 
-  def app; FormParamApi; end
+  def app; QueryParamApi; end
 
   it "retrieves the documentation query params" do
     get '/swagger_doc/items.json'

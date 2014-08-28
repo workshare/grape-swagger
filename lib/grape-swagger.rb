@@ -141,8 +141,10 @@ module Grape
                 operations = routes.map do |route|
                   notes       = as_markdown(route.route_notes)
                   http_codes  = parse_http_codes(route.route_http_codes)
-
-                  models << route.route_entity if route.route_entity
+                  entity = route.route_entity || route.route_body_entity
+                  all_params = route.route_params
+                  all_params.merge!(route.route_body_entity.documentation.dup) if route.route_body_entity
+                  models << entity if entity
 
                   operation = {
                     :produces   => content_types_for(target_class),
@@ -151,9 +153,9 @@ module Grape
                     :nickname   => route.route_nickname || (route.route_method + route.route_path.gsub(/[\/:\(\)\.]/,'-')),
                     :httpMethod => route.route_method,
                     :parameters => parse_header_params(route.route_headers) +
-                      parse_params(route.route_params, route.route_path, route.route_method, route.route_body_entity)
+                      parse_params(all_params, route.route_path, route.route_method, route.route_body_entity)
                   }
-                  operation.merge!(:type => parse_entity_name(route.route_entity)) if route.route_entity
+                  operation.merge!(:type => parse_entity_name(entity)) if entity
                   operation.merge!(:responseMessages => http_codes) unless http_codes.empty?
                   operation
                 end.compact

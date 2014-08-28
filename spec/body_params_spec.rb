@@ -4,18 +4,15 @@ describe "Body Params" do
   
   before :all do
     module Entities
-      class Something < Grape::Entity
+      class SomethingElse < Grape::Entity
         expose :text, :documentation => { :type => "string", :desc => "Entity name" }
       end
     end
 
     class BodyApi < Grape::API
       format :json
-      desc 'This sets something', {
-        entity: Entities::Something
-      }
 
-      desc "Test", entity: Entities::Something, body_entity: Entities::Something, params: Entities::Something.documentation.dup
+      desc "Test", body_entity: Entities::SomethingElse
       post '/something' do
       end
       add_swagger_documentation
@@ -39,20 +36,20 @@ describe "Body Params" do
         "httpMethod"=>"POST",
         "parameters"=>[
            {"paramType"=>"body",
-            "name"=>"Something",
+            "name"=>"SomethingElse",
             "description"=>"",
-            "dataType"=>"Something",
+            "dataType"=>"SomethingElse",
             "required"=>true}],
-        "type"=>"Something"}]}],
+        "type"=>"SomethingElse"}]}],
       "basePath"=>"http://example.org",
       "models"=>{
-        "Something"=>{
-            "id"=>"Something",
-            "name"=>"Something",
+        "SomethingElse"=>{
+            "id"=>"SomethingElse",
+            "name"=>"SomethingElse",
             "properties"=>{
                "text"=>{
                   "type"=>"string",
-                  "description"=>"Content of something."}}}}}
+                  "description"=>"Entity name"}}}}}
 )
   end
 end
