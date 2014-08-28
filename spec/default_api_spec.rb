@@ -1,10 +1,9 @@
 require 'spec_helper'
 
-describe "Default API" do
-
+describe 'Default API' do
   context 'with no additional options' do
-    before :all do
-      class NotAMountedApi < Grape::API
+    def app
+      Class.new(Grape::API) do
         format :json
         desc 'This gets something.'
         get '/something' do
@@ -14,37 +13,36 @@ describe "Default API" do
       end
     end
 
-    def app; NotAMountedApi; end
-
-    it "should document something" do
+    subject do
       get '/swagger_doc'
-      JSON.parse(last_response.body).should == {
-        "apiVersion" => "0.1",
-        "swaggerVersion" => "1.2",
-        "basePath" => "http://example.org",
-        "info" => {},
-        "produces" => ["application/json"],
-        "operations" => [],
-        "apis" => [
-          { "path" => "/swagger_doc/something.{format}" },
-          { "path" => "/swagger_doc/swagger_doc.{format}" }
-        ]
-      }
+      JSON.parse(last_response.body)
     end
-    
-    context "path inside the apis array" do
-      it "should start with a forward slash" do
-        get '/swagger_doc'
-        JSON.parse(last_response.body)['apis'].each do |api|
-          api['path'].should start_with "/"
+
+    it 'documents api' do
+      expect(subject).to eq(
+        'apiVersion' => '0.1',
+        'swaggerVersion' => '1.2',
+        'info' => {},
+        'produces' => ['application/json'],
+        'apis' => [
+          { 'path' => '/something.{format}', 'description' => 'Operations about somethings' },
+          { 'path' => '/swagger_doc.{format}', 'description' => 'Operations about swagger_docs' }
+        ]
+      )
+    end
+
+    context 'path inside the apis array' do
+      it 'starts with a forward slash' do
+        subject['apis'].each do |api|
+          expect(api['path']).to start_with '/'
         end
       end
     end
   end
 
-  context 'with API info' do
-    before :all do
-      class ApiInfoTest < Grape::API
+  context 'with additional info' do
+    def app
+      Class.new(Grape::API) do
         format :json
         add_swagger_documentation info: {
           title: 'My API Title',
@@ -55,20 +53,18 @@ describe "Default API" do
           contact: 'support@test.com'
         }
       end
-      get '/swagger_doc'
     end
 
-    def app; ApiInfoTest; end
-
     subject do
+      get '/swagger_doc'
       JSON.parse(last_response.body)['info']
     end
 
-    it 'should document API title' do
+    it 'documents API title' do
       expect(subject['title']).to eql('My API Title')
     end
 
-    it 'should document API description' do
+    it 'documents API description' do
       expect(subject['description']).to eql('A description of my API')
     end
 
@@ -76,17 +72,16 @@ describe "Default API" do
       expect(subject['license']).to eql('Apache 2')
     end
 
-    it 'should document the license url' do
+    it 'documents the license url' do
       expect(subject['licenseUrl']).to eql('http://test.com')
     end
 
-    it 'should document the terms of service url' do
+    it 'documents the terms of service url' do
       expect(subject['termsOfServiceUrl']).to eql('http://terms.com')
     end
 
-    it 'should document the contact email' do
+    it 'documents the contact email' do
       expect(subject['contact']).to eql('support@test.com')
     end
   end
-
 end
