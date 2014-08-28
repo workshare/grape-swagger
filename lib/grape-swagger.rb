@@ -156,7 +156,7 @@ module Grape
                       parse_params(all_params, route.route_path, route.route_method, route.route_body_entity)
                   }
                   operation.merge!(:type => parse_entity_name(entity)) if entity
-                  operation.merge!(:responseMessages => http_codes) unless http_codes.empty?
+                  operation.merge!(:errorResponses => http_codes) unless http_codes.empty?
                   operation
                 end.compact
                 apis << {
@@ -335,7 +335,7 @@ module Grape
               codes.map do |k, v|
                 {
                   code: k,
-                  message: v,
+                  reason: v,
                   #responseModel: ...
                 }
               end
