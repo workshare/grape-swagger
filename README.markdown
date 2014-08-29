@@ -151,6 +151,23 @@ get '/', :http_codes => [
 end
 ```
 
+## Additions
+
+Now you can add a ```body_entity``` option to the description and it will be added to the list of entities to document. The parameters described within that entity will also be added to the ones grape receives as body parameters.
+
+``` ruby
+desc "Test", body_entity: Entities::User
+params do
+  requires :queryparam, type: String
+end
+
+get do
+  ...
+end
+```
+
+This will result in ```Entities::User``` being documented and its exposures being body parameters.
+
 ## Contributing to grape-swagger
 
 * Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet.
