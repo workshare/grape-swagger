@@ -423,6 +423,10 @@ module Grape
                   info:           @@documentation_class.parse_info(extra_info)
                 }
 
+                ## ARGH
+                base_path               = @@documentation_class.parse_base_path(options[:base_path], request)
+                output[:basePath]       = base_path if base_path && base_path.size > 0 && root_base_path != false
+
                 output[:authorizations] = authorizations unless authorizations.nil? || authorizations.empty?
 
                 output
